@@ -1,29 +1,21 @@
-import express from 'express';
-import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-
-dotenv.config();
-
-const app = express();
-app.use(express.json());
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI'; // Replace with your site URL
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
 
 const API_TIMEOUT = 1 * 60 * 1000; // 2 minutes in milliseconds
 
-app.get('/', (req, res) => {
-  console.log('Entered get');
-  const name = process.env.YOUR_SITE_NAME || 'World'; // Using YOUR_SITE_NAME for consistency
-  res.send(`Hello ${name}!`);
-});
+export default async function ({ req, res }) {
 
-app.post('/api/compare-llms', async (req, res) => {
-  console.log('Entered post');
-  const { prompt } = req.body;
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+  const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI'; // Replace with your site URL
+  const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+  const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
+  
+  if (req.method === 'GET') {
+    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain'});
+  }
+
+
+  const prompt = req.body; // Appwrite passes the body directly
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required in the request body.' });
@@ -36,11 +28,11 @@ app.post('/api/compare-llms', async (req, res) => {
 
   if (!PERPLEXITY_API_KEY) {
       console.error('PERPLEXITY_API_KEY is not set.');
-  }
+    }
 
   if (!OPENROUTER_API_KEY) {
     console.error('OPENROUTER_API_KEY is not set.');
-    return res.status(500).json({ error: 'OPENROUTER_API_KEY is not set.' });
+ return res.json({ status: 500, json: { error: 'OPENROUTER_API_KEY is not set.' } });
   }
 
   const callGemini = async (prompt) => {
@@ -179,14 +171,9 @@ app.post('/api/compare-llms', async (req, res) => {
   const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
 
   if (finalResult.status === 'succeeded') {
-    // Assuming the response structure of OpenRouter chat completion includes choices[0].message.content
-    res.status(200).send(finalResult.response.choices[0]?.message?.content || 'Could not generate summary.');
-  } else {
-    res.status(500).json({ error: 'Failed to generate final summary.', details: finalResult.error });
+    return res.json({ status: 200, json: finalResult.response.choices[0]?.message?.content || 'Could not generate summary.' });
+  }  else {
+    return res.json({ status: 500, json: { error: 'Failed to generate final summary.', details: finalResult.error } });
   }
-});
 
-const port = parseInt(process.env.PORT) || 3000;
-app.listen(port, () => {
-  console.log(`listening on port ${port}`);
-});
+}
