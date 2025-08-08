@@ -172,9 +172,13 @@ export default async function ({ req, res }) {
   const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
 
   if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: finalResult.response.choices[0]?.message?.content || 'Could not generate summary.' });
+    return res.json({ status: 200, json: finalResult.response.choices[0]?.message?.content || 'Could not generate summary.' }, {
+      'Access-Control-Allow-Origin': '*',
+    });
   }  else {
-    return res.json({ status: 500, json: { error: 'Failed to generate final summary.', details: finalResult.error } });
+    return res.json({ status: 500, json: { error: 'Failed to generate final summary.', details: finalResult.error } }, {
+      'Access-Control-Allow-Origin': '*',
+    });
   }
 
 }
