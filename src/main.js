@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const API_TIMEOUT = 1 * 60 * 1000; // 2 minutes in milliseconds
+const API_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
 
 export default async function ({ req, res }) {
 
@@ -45,10 +45,11 @@ export default async function ({ req, res }) {
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
         {
           method: 'POST',
           headers: {
+            'x-goog-api-key': `${GEMINI_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
