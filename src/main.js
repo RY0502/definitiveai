@@ -163,9 +163,9 @@ export default async function ({ req, res }) {
   const apiCalls = [
     callGemini(prompt),
     callPerplexity(prompt),
-    callOpenRouter(prompt, 'deepseek/deepseek-chat-v3-0324:free'),
-    callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+    //callOpenRouter(prompt, 'deepseek/deepseek-chat-v3-0324:free'),
+    //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
+    //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
   ];
 
   const results = await Promise.all(apiCalls);
