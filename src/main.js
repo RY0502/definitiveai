@@ -31,7 +31,7 @@ export default async function ({ req, res }) {
     }
 
   if (!OPENROUTER_API_KEY) {
-    context.log(OPENROUTER_API_KEY);
+    console.log(OPENROUTER_API_KEY);
     console.error('OPENROUTER_API_KEY is not set.');
  return res.json({ status: 500, json: { error: 'OPENROUTER_API_KEY is not set.' } });
   }
@@ -109,7 +109,7 @@ export default async function ({ req, res }) {
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
-      context.log( `Bearer ${OPENROUTER_API_KEY}`);
+      console.log( `Bearer ${OPENROUTER_API_KEY}`);
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
