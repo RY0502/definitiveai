@@ -11,8 +11,18 @@ export default async function ({ req, res }) {
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
   
   if (req.method === 'GET') {
-    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain'});
+    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain'}, {
+      'Access-Control-Allow-Origin': '*',
+    });
   }
+
+  if (req.method === 'OPTIONS') {
+    return res.send('', 200, {
+        'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization', // Or include all headers your requests send
+    });
+}
 
 
   const prompt = req.body; // Appwrite passes the body directly
