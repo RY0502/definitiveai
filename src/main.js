@@ -177,10 +177,11 @@ export default async function ({ req, res }) {
 
   const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive summary on the basis of these sources in html format.`;
 
-  const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
+  //const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
+  const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: finalResult.response.choices[0]?.message?.content || 'Could not generate summary.' }, 200, {
+    return res.json({ status: 200, json: sourceText || 'Could not generate summary.' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
