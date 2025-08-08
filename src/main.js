@@ -18,7 +18,7 @@ export default async function ({ req, res }) {
     return res.send('', 200, {
         'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization', // Or include all headers your requests send
+        'Access-Control-Allow-Headers': '*', // Or include all headers your requests send
     });
 }
 
