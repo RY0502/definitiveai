@@ -182,7 +182,7 @@ export default async function ({ req, res }) {
 
   if (finalResult.status === 'succeeded') {
     //return res.json({ status: 200, json: finalResult.response.choices[0]?.message?.content || 'Could not generate summary.', headers: '{ \'Access-Control-Allow-Origin\': \'*\' }' });
-    res.set("Access-Control-Allow-Origin", "*");
+    res.headers("Access-Control-Allow-Origin", "*");
     return res.json({ status: 200, json: 'Could not generate summary.'});
   }  else {
     return res.json({ status: 500, json: { error: 'Failed to generate final summary.', details: finalResult.error }, headers: '{ \'Access-Control-Allow-Origin\': \'*\' }' });
