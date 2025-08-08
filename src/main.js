@@ -11,9 +11,7 @@ export default async function ({ req, res }) {
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
   
   if (req.method === 'GET') {
-    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain'}, {
-      'Access-Control-Allow-Origin': '*',
-    });
+    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
   }
 
   if (req.method === 'OPTIONS') {
