@@ -16,11 +16,13 @@ const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace
 const API_TIMEOUT = 1 * 60 * 1000; // 2 minutes in milliseconds
 
 app.get('/', (req, res) => {
+  console.log('Entered get');
   const name = process.env.YOUR_SITE_NAME || 'World'; // Using YOUR_SITE_NAME for consistency
   res.send(`Hello ${name}!`);
 });
 
 app.post('/api/compare-llms', async (req, res) => {
+  console.log('Entered post');
   const { prompt } = req.body;
 
   if (!prompt) {
