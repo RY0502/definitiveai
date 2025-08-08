@@ -3,18 +3,19 @@
   "description": "Simple api sample in Node",
   "version": "1.0.0",
   "private": true,
-  "main": "main.js",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "nodemon src/main.js",
+    "start": "node src/main.js"
   },
   "author": "Google LLC",
   "license": "Apache-2.0",
   "dependencies": {
     "dotenv": "^17.2.1",
     "node-fetch": "^2.6.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "node-appwrite": "^14.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
