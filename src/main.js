@@ -195,13 +195,13 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive summary on the basis of these sources and use your own internal knowledge as well. Use search as well for getting upto date data. The response should be in html format which can be rendered directly on a web page.`;
+  //const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive summary on the basis of these sources and use your own internal knowledge as well. Use search as well for getting upto date data. The response should be in html format which can be rendered directly on a web page.`;
 
-  const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
-  //const finalResult = {"status":"succeeded"};
+  //const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
+  const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: finalResult || 'Could not generate summary.' }, 200, {
+    return res.json({ status: 200, json: sourceText || 'Could not generate summary.' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
