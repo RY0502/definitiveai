@@ -73,7 +73,14 @@ export default async function ({ req, res }) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return { source: 'Gemini', status: 'success', response: data };
+      // Extract text from the first part of the first candidate
+      try {
+        const textResponse = data.candidates[0].content.parts[0].text;
+        return { source: 'Gemini', status: 'success', response: textResponse };
+      } catch (parseError) {
+        console.error('Error parsing Gemini API response:', parseError.message);
+        return { source: 'Gemini', status: 'failed', error: 'Failed to parse Gemini response.' };
+      }
     } catch (error) {
       console.error('Error calling Gemini API:', error.message);
       return { source: 'Gemini', status: 'failed', error: error.message };    }
@@ -105,7 +112,14 @@ export default async function ({ req, res }) {
 
           clearTimeout(timeoutId);
           const data = await response.json();
-          return { source: 'Perplexity', status: response.ok ? 'succeeded' : 'failed', response: data };
+          if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+              const textResponse = data.choices[0].message.content;
+              return { source: 'Perplexity', status: 'succeeded', response: textResponse };
+          } else {
+              console.error('Error parsing Perplexity API response:', data);
+              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.' };
+          }
+
       } catch (error) {
           clearTimeout(timeoutId);
           return { source: 'Perplexity', status: 'failed', error: error.message };
@@ -148,7 +162,13 @@ export default async function ({ req, res }) {
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
       const data = await response.json();
-      return { source: model, status: 'succeeded', response: data };
+      if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+        const textResponse = data.choices[0].message.content;
+        return { source: model, status: 'succeeded', response: textResponse };
+      } else {
+        console.error('Error parsing OpenRouter API response:', data);
+        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
+      }
     } catch (error) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
@@ -181,7 +201,7 @@ export default async function ({ req, res }) {
   //const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: sourceText || 'Could not generate summary.' }, 200, {
+    return res.json({ status: 200, json: finalResult.choices[0].message.content || 'Could not generate summary.' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
