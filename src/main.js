@@ -198,7 +198,7 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please remove the text between <think> tags from the final html response.`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page and looks nice with pleasant elements and fonts. Once the html is formed, please remove the text between <think> tags from the final html response.`;
 
   const finalResult = await callOpenRouter(finalPrompt, 'openai/gpt-oss-20b:free');
   //const finalResult = {"status":"succeeded"};
