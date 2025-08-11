@@ -86,6 +86,7 @@ export default async function ({ req, res }) {
   };
 
   const callPerplexity = async (prompt) => {
+      const startTime = Date.now();
       if (!PERPLEXITY_API_KEY) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
       }
@@ -116,16 +117,21 @@ export default async function ({ req, res }) {
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
           } else {
               console.error('Error parsing Perplexity API response:', data);
-              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.' };
+              const endTime = Date.now();
+              console.log(`Perplexity API call failed. Duration: ${endTime - startTime}ms`);
+              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: endTime - startTime };
           }
 
       } catch (error) {
           clearTimeout(timeoutId);
-          return { source: 'Perplexity', status: 'failed', error: error.message };
+          const endTime = Date.now();
+          console.error(`Error calling Perplexity API: ${error.message}. Duration: ${endTime - startTime}ms`);
+          return { source: 'Perplexity', status: 'failed', error: error.message, duration: endTime - startTime };
       }
   }
 
   const callOpenRouter = async (prompt, model, isSummaryCall = false) => {
+    const startTime = Date.now();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
@@ -166,37 +172,48 @@ export default async function ({ req, res }) {
         return { source: model, status: 'succeeded', response: textResponse };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
-        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
+        const endTime = Date.now();
+        console.log(`OpenRouter API call for model ${model} failed. Duration: ${endTime - startTime}ms`);
+        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.', duration: endTime - startTime };
       }
     } catch (error) {
       clearTimeout(timeoutId);
+      const endTime = Date.now();
       if (error.name === 'AbortError') {
-        console.error(`OpenRouter API call for model ${model} timed out.`);
-        return { source: model, status: 'failed', error: 'Request timed out' };
+        console.error(`OpenRouter API call for model ${model} timed out. Duration: ${endTime - startTime}ms`);
+        return { source: model, status: 'failed', error: 'Request timed out', duration: endTime - startTime };
       }
-      console.error(`Error calling OpenRouter API for model ${model}:`, error.message);
-      return { source: model, status: 'failed', error: error.message };
+      console.error(`Error calling OpenRouter API for model ${model}: ${error.message}. Duration: ${endTime - startTime}ms`);
+      return { source: model, status: 'failed', error: error.message, duration: endTime - startTime };
     }
   };
 
+  // Log the start of the API calls
+  console.log(`Starting API calls for prompt: ${prompt.substring(0, 100)}...`);
+
   const apiCalls = [
-    callGemini(prompt),
+    //callGemini(prompt),
     callPerplexity(prompt),
-    //callOpenRouter(prompt, 'deepseek/deepseek-chat-v3-0324:free'),
+    callOpenRouter(prompt, 'mistralai/mistral-small-3.2-24b-instruct:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
     callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
   ];
 
   const results = await Promise.all(apiCalls);
+
+  // Log the results of each API call
+  results.forEach(result => {
+      console.log(`API Call Result - Source: ${result.source}, Status: ${result.status}${result.duration ? `, Duration: ${result.duration}ms` : ''}`);
+  });
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
   const sourceText = successfulResults.map((result, index) => {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. The response should be in html format which can be rendered directly on a web page.`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please remove the text between <think> tags from the final html response..`;
 
-  const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
+  const finalResult = await callOpenRouter(finalPrompt, 'openai/gpt-oss-20b:free');
   //const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
