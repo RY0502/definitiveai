@@ -86,7 +86,6 @@ export default async function ({ req, res }) {
   };
 
   const callPerplexity = async (prompt) => {
-      const startTime = Date.now();
       if (!PERPLEXITY_API_KEY) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
       }
@@ -113,27 +112,20 @@ export default async function ({ req, res }) {
           clearTimeout(timeoutId);
           const data = await response.json();
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
-            const endTime = Date.now();
-              console.log(`Perplexity API call success. Duration: ${endTime - startTime}ms`);  
             const textResponse = data.choices[0].message.content;
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
           } else {
               console.error('Error parsing Perplexity API response:', data);
-              const endTime = Date.now();
-              console.log(`Perplexity API call failed. Duration: ${endTime - startTime}ms`);
-              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: endTime - startTime };
+              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.' };
           }
 
       } catch (error) {
           clearTimeout(timeoutId);
-          const endTime = Date.now();
-          console.error(`Error calling Perplexity API: ${error.message}. Duration: ${endTime - startTime}ms`);
-          return { source: 'Perplexity', status: 'failed', error: error.message, duration: endTime - startTime };
+          return { source: 'Perplexity', status: 'failed', error: error.message };
       }
   }
 
   const callOpenRouter = async (prompt, model, isSummaryCall = false) => {
-    const startTime = Date.now();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
@@ -170,25 +162,20 @@ export default async function ({ req, res }) {
       }
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
-        const endTime = Date.now();
-        console.log(`OpenRouter API call for model ${model} success. Duration: ${endTime - startTime}ms`);
         const textResponse = data.choices[0].message.content;
         return { source: model, status: 'succeeded', response: textResponse };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
-        const endTime = Date.now();
-        console.log(`OpenRouter API call for model ${model} failed. Duration: ${endTime - startTime}ms`);
-        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.', duration: endTime - startTime };
+        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
       }
     } catch (error) {
       clearTimeout(timeoutId);
-      const endTime = Date.now();
       if (error.name === 'AbortError') {
-        console.error(`OpenRouter API call for model ${model} timed out. Duration: ${endTime - startTime}ms`);
-        return { source: model, status: 'failed', error: 'Request timed out', duration: endTime - startTime };
+        console.error(`OpenRouter API call for model ${model} timed out.`);
+        return { source: model, status: 'failed', error: 'Request timed out'};
       }
-      console.error(`Error calling OpenRouter API for model ${model}: ${error.message}. Duration: ${endTime - startTime}ms`);
-      return { source: model, status: 'failed', error: error.message, duration: endTime - startTime };
+      console.error(`Error calling OpenRouter API for model ${model}: ${error.message}.`);
+      return { source: model, status: 'failed', error: error.message };
     }
   };
 
@@ -205,10 +192,6 @@ export default async function ({ req, res }) {
 
   const results = await Promise.all(apiCalls);
 
-  // Log the results of each API call
-  results.forEach(result => {
-      console.log(`API Call Result - Source: ${result.source}, Status: ${result.status}${result.duration ? `, Duration: ${result.duration}ms` : ''}`);
-  });
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
   const sourceText = successfulResults.map((result, index) => {
