@@ -68,13 +68,11 @@ export default async function ({ req, res }) {
       );
 
       clearTimeout(timeoutId);
-      console.log('-----'+ response);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       // Extract text from the first part of the first candidate
-      console.log(data);
       try {
         const textResponse = data.candidates[0].content.parts[0].text;
         return { source: 'Gemini', status: 'succeeded', response: textResponse };
@@ -111,10 +109,8 @@ export default async function ({ req, res }) {
               signal: controller.signal
           });
 
-          console.log('-----'+ response);
           clearTimeout(timeoutId);
           const data = await response.json();
-          console.log(data);
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
               const textResponse = data.choices[0].message.content;
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
@@ -160,13 +156,11 @@ export default async function ({ req, res }) {
 
       clearTimeout(timeoutId);
 
-      console.log('-----'+ response);
       if (!response.ok) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
       const data = await response.json();
-      console.log(data);
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         const textResponse = data.choices[0].message.content;
         return { source: model, status: 'succeeded', response: textResponse };
@@ -176,7 +170,6 @@ export default async function ({ req, res }) {
       }
     } catch (error) {
       clearTimeout(timeoutId);
-      //console.log(error);
       if (error.name === 'AbortError') {
         console.error(`OpenRouter API call for model ${model} timed out.`);
         return { source: model, status: 'failed', error: 'Request timed out' };
@@ -201,10 +194,10 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  //const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive summary on the basis of these sources and use your own internal knowledge as well. Use search as well for getting upto date data. The response should be in html format which can be rendered directly on a web page.`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. The response should be in html format which can be rendered directly on a web page.`;
 
-  //const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
-  const finalResult = {"status":"succeeded"};
+  const finalResult = await callOpenRouter(finalPrompt, 'qwen/qwen3-235b-a22b:free');
+  //const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
     return res.json({ status: 200, json: sourceText || 'Could not generate summary.' }, 200, {
