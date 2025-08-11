@@ -204,7 +204,7 @@ export default async function ({ req, res }) {
   //const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: sourceText || 'Could not generate summary.' }, 200, {
+    return res.json({ status: 200, json: finalResult.response || 'Could not generate summary.' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
