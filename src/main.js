@@ -113,7 +113,9 @@ export default async function ({ req, res }) {
           clearTimeout(timeoutId);
           const data = await response.json();
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
-              const textResponse = data.choices[0].message.content;
+            const endTime = Date.now();
+              console.log(`Perplexity API call success. Duration: ${endTime - startTime}ms`);  
+            const textResponse = data.choices[0].message.content;
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
           } else {
               console.error('Error parsing Perplexity API response:', data);
@@ -168,6 +170,7 @@ export default async function ({ req, res }) {
       }
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+        const endTime = Date.now();
         console.log(`OpenRouter API call for model ${model} success. Duration: ${endTime - startTime}ms`);
         const textResponse = data.choices[0].message.content;
         return { source: model, status: 'succeeded', response: textResponse };
