@@ -68,12 +68,13 @@ export default async function ({ req, res }) {
       );
 
       clearTimeout(timeoutId);
-
+      console.log(response);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       // Extract text from the first part of the first candidate
+      console.log(data);
       try {
         const textResponse = data.candidates[0].content.parts[0].text;
         return { source: 'Gemini', status: 'success', response: textResponse };
@@ -111,9 +112,7 @@ export default async function ({ req, res }) {
           });
 
           clearTimeout(timeoutId);
-          console.log(response);
           const data = await response.json();
-          console.log(data);
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
               const textResponse = data.choices[0].message.content;
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
@@ -124,7 +123,6 @@ export default async function ({ req, res }) {
 
       } catch (error) {
           clearTimeout(timeoutId);
-          console.log(error);
           return { source: 'Perplexity', status: 'failed', error: error.message };
       }
   }
@@ -165,7 +163,7 @@ export default async function ({ req, res }) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
-      //const data = await response.json();
+      const data = await response.json();
       console.log(data);
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         const textResponse = data.choices[0].message.content;
@@ -189,9 +187,9 @@ export default async function ({ req, res }) {
   const apiCalls = [
     callGemini(prompt),
     callPerplexity(prompt),
-    callOpenRouter(prompt, 'deepseek/deepseek-chat-v3-0324:free'),
+    //callOpenRouter(prompt, 'deepseek/deepseek-chat-v3-0324:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
   ];
 
   const results = await Promise.all(apiCalls);
