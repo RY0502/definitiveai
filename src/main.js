@@ -111,7 +111,9 @@ export default async function ({ req, res }) {
           });
 
           clearTimeout(timeoutId);
+          console.log(response);
           const data = await response.json();
+          console.log(data);
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
               const textResponse = data.choices[0].message.content;
               return { source: 'Perplexity', status: 'succeeded', response: textResponse };
@@ -122,6 +124,7 @@ export default async function ({ req, res }) {
 
       } catch (error) {
           clearTimeout(timeoutId);
+          console.log(error);
           return { source: 'Perplexity', status: 'failed', error: error.message };
       }
   }
@@ -157,12 +160,12 @@ export default async function ({ req, res }) {
 
       clearTimeout(timeoutId);
 
-      console.log(response);
+      
       if (!response.ok) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
         throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
-      const data = await response.json();
+      //const data = await response.json();
       console.log(data);
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         const textResponse = data.choices[0].message.content;
@@ -173,7 +176,7 @@ export default async function ({ req, res }) {
       }
     } catch (error) {
       clearTimeout(timeoutId);
-      console.log(error);
+      //console.log(error);
       if (error.name === 'AbortError') {
         console.error(`OpenRouter API call for model ${model} timed out.`);
         return { source: model, status: 'failed', error: 'Request timed out' };
