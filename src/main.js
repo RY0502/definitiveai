@@ -185,7 +185,7 @@ export default async function ({ req, res }) {
   const apiCalls = [
     //callGemini(prompt),
     callPerplexity(prompt),
-    callOpenRouter(prompt, 'mistralai/mistral-small-3.2-24b-instruct:free'),
+    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
     callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
   ];
@@ -198,9 +198,9 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources. Please don't include any planning, thinking  or reasoning text which you use. Simply provide the actual summary.`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please remove the text between <think> tags from the final html response.`;
 
-  const finalResult = await callOpenRouter(finalPrompt, 'openai/gpt-oss-20b:free');
+  const finalResult = await callOpenRouter(finalPrompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free');
   //const finalResult = {"status":"succeeded"};
 
   if (finalResult.status === 'succeeded') {
