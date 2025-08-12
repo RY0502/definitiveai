@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 
 const API_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
+let requestCount = 0;
 
 export default async function ({ req, res }) {
 
@@ -9,7 +10,9 @@ export default async function ({ req, res }) {
   const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI'; // Replace with your site URL
   const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
+  const ANOTHER_OPENROUTER_API_KEY = process.env.ANOTHER_OPENROUTER_API_KEY;
   
+  requestCount++;
   if (req.method === 'GET') {
     return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
   }
@@ -130,13 +133,14 @@ export default async function ({ req, res }) {
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
+      const apiKey = requestCount % 2 === 0 ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY;
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            'HTTP-Referer': YOUR_SITE_URL,
+            Authorization: `Bearer ${apiKey}`,
+            'HTTP-Referer': YOUR_SITE_URL ,
             'X-Title': YOUR_SITE_NAME,
             'Content-Type': 'application/json',
           },
@@ -203,14 +207,20 @@ export default async function ({ req, res }) {
   const finalResult = await callOpenRouter(finalPrompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free');
   //const finalResult = {"status":"succeeded"};
 
-  if (finalResult.status === 'succeeded') {
-    return res.json({ status: 200, json: finalResult.response || 'Could not generate summary.' }, 200, {
+  if (finalResult.status === 'succeeded' && finalResult.response) {
+    return res.json({ status: 200, json: finalResult.response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
-    return res.json({ status: 500, json: { error: 'Failed to generate final summary.', details: finalResult.error } }, 500, {
+    console.log(finalResult.error);
+    return res.json({ status: 200, json:  sourceText }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
-
 }
+
+
+
+
+
+
