@@ -202,7 +202,7 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please remove the text between <think> tags from the final html response.`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summary. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please make sure to remove the text between <think> tags from the final html responseIt is mandatory.`;
 
   const finalResult = await callOpenRouter(finalPrompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free');
   //const finalResult = {"status":"succeeded"};
@@ -213,7 +213,7 @@ export default async function ({ req, res }) {
     });
   }  else {
     console.log(finalResult.error);
-    return res.json({ status: 200, json:  sourceText }, 200, {
+    return res.json({ status: 200, json:  successfulResults[0].response || 'Unable to generate results' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
