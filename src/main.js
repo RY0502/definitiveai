@@ -107,7 +107,7 @@ export default async function ({ req, res }) {
                   model: 'sonar',
                   messages: [{
                       role: 'user',
-                      content: prompt + '.Try to be as quick as possible in responding',
+                      content: prompt,
                   }],
               }),
               signal: controller.signal
@@ -155,7 +155,7 @@ export default async function ({ req, res }) {
             messages: [
               {
                 role: 'user',
-                content: isSummaryCall ? prompt : `${prompt}. Use web search to generate more accurate result. try to be as as quick as possible in responding`,
+                content: isSummaryCall ? prompt : `${prompt}. Use web search to generate more accurate result`,
               },
             ],
           }),
@@ -212,7 +212,7 @@ export default async function ({ req, res }) {
     return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
   }).join('\n');
 
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summarry and don't mention anything about the sources. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please make sure to remove the text between <think> tags from the final html response.Try to be quick in summarizing and responding`;
+  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summarry and don't mention anything about the sources. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please make sure to remove the text between <think> tags from the final html response.`;
 
   const finalResult = await callOpenRouter(finalPrompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free');
   //const finalResult = {"status":"succeeded"};
