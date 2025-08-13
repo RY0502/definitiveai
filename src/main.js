@@ -89,7 +89,6 @@ export default async function ({ req, res }) {
   };
 
   const callPerplexity = async (prompt) => {
-    console.log(prompt);
       if (!PERPLEXITY_API_KEY) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
  return { source: 'Perplexity', status: 'failed', error: 'PERPLEXITY_API_KEY is not set.' };
@@ -116,7 +115,6 @@ export default async function ({ req, res }) {
           });
 
           clearTimeout(timeoutId);
-          console.log(response);
           const data = await response.json();
 
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
@@ -198,7 +196,6 @@ export default async function ({ req, res }) {
   const results = await Promise.all(apiCalls);
 
   const successfulResults = results.filter(result => result.status === 'succeeded');
-  console.log(successfulResults);
 
   if (successfulResults) {
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
