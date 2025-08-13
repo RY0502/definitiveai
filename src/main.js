@@ -116,6 +116,7 @@ export default async function ({ req, res }) {
           });
 
           clearTimeout(timeoutId);
+          console.log(response);
           const data = await response.json();
 
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
