@@ -201,7 +201,7 @@ export default async function ({ req, res }) {
   console.log(successfulResults);
 
   if (successfulResults) {
-    return res.json({ status: 200, json: successfulResults.response }, 200, {
+    return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
