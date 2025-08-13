@@ -187,8 +187,8 @@ export default async function ({ req, res }) {
 
   const apiCalls = [
     //callGemini(prompt),
-    callPerplexity(prompt),
-    //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+   // callPerplexity(prompt),
+    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
     //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
   ];
