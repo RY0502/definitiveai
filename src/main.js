@@ -89,6 +89,7 @@ export default async function ({ req, res }) {
   };
 
   const callPerplexity = async (prompt) => {
+    console.log(prompt);
       if (!PERPLEXITY_API_KEY) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
  return { source: 'Perplexity', status: 'failed', error: 'PERPLEXITY_API_KEY is not set.' };
