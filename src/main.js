@@ -115,14 +115,11 @@ export default async function ({ req, res }) {
           });
 
           clearTimeout(timeoutId);
- const startTime = performance.now(); // Start timing
           const data = await response.json();
- const endTime = performance.now(); // End timing
- const duration = endTime - startTime; // Duration in milliseconds
 
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
             const textResponse = data.choices[0].message.content;
-              return { source: 'Perplexity', status: 'succeeded', response: textResponse, duration: duration };
+ return { source: 'Perplexity', status: 'succeeded', response: textResponse };
           } else {
               console.error('Error parsing Perplexity API response:', data);
               return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: duration };
@@ -130,7 +127,7 @@ export default async function ({ req, res }) {
 
       } catch (error) {
           clearTimeout(timeoutId);
- return { source: 'Perplexity', status: 'failed', error: error.message, duration: performance.now() - startTime };
+ return { source: 'Perplexity', status: 'failed', error: error.message };
       }
   }
 
@@ -165,23 +162,18 @@ export default async function ({ req, res }) {
 
 
       clearTimeout(timeoutId);
- const startTime = performance.now(); // Start timing
 
       if (!response.ok) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
-        const endTime = performance.now(); // End timing
- const duration = endTime - startTime; // Duration in milliseconds
- throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`, { cause: { duration: duration } });
+ throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
       const data = await response.json();
-      const endTime = performance.now(); // End timing
-      const duration = endTime - startTime; // Duration in milliseconds
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         const textResponse = data.choices[0].message.content;
-        return { source: model, status: 'succeeded', response: textResponse, duration: duration };
+ return { source: model, status: 'succeeded', response: textResponse };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
-        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.', duration: duration };
+ return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
       }
     } catch (error) {
       clearTimeout(timeoutId);
@@ -189,7 +181,7 @@ export default async function ({ req, res }) {
         console.error(`OpenRouter API call for model ${model} timed out.`);
         return { source: model, status: 'failed', error: 'Request timed out', duration: performance.now() - (error.cause?.duration || 0) };
       }
-      return { source: model, status: 'failed', error: error.message, duration: error.cause?.duration || 0 };
+ return { source: model, status: 'failed', error: error.message };
     }
   };
 
