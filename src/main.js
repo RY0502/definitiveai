@@ -198,6 +198,7 @@ export default async function ({ req, res }) {
   const results = await Promise.all(apiCalls);
 
   const successfulResults = results.filter(result => result.status === 'succeeded');
+  console.log(successfulResults);
 
   if (successfulResults) {
     return res.json({ status: 200, json: successfulResults.response }, 200, {
