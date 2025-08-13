@@ -91,6 +91,7 @@ export default async function ({ req, res }) {
   const callPerplexity = async (prompt) => {
       if (!PERPLEXITY_API_KEY) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
+ return { source: 'Perplexity', status: 'failed', error: 'PERPLEXITY_API_KEY is not set.' };
       }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -110,27 +111,30 @@ export default async function ({ req, res }) {
                   }],
               }),
               signal: controller.signal
+
           });
 
           clearTimeout(timeoutId);
+ const startTime = performance.now(); // Start timing
           const data = await response.json();
+ const endTime = performance.now(); // End timing
+ const duration = endTime - startTime; // Duration in milliseconds
+
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
             const textResponse = data.choices[0].message.content;
-              return { source: 'Perplexity', status: 'succeeded', response: textResponse };
+              return { source: 'Perplexity', status: 'succeeded', response: textResponse, duration: duration };
           } else {
               console.error('Error parsing Perplexity API response:', data);
-              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.' };
+              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: duration };
           }
 
       } catch (error) {
           clearTimeout(timeoutId);
-          return { source: 'Perplexity', status: 'failed', error: error.message };
+ return { source: 'Perplexity', status: 'failed', error: error.message, duration: performance.now() - startTime };
       }
   }
 
   const callOpenRouter = async (prompt, model, isSummaryCall = false) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
       const apiKey = requestCount % 2 === 0 ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY;
@@ -154,32 +158,36 @@ export default async function ({ req, res }) {
             ],
           }),
           signal: controller.signal,
-        },
+ },
       );
 
 
       clearTimeout(timeoutId);
+ const startTime = performance.now(); // Start timing
 
       if (!response.ok) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
-        throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        const endTime = performance.now(); // End timing
+ const duration = endTime - startTime; // Duration in milliseconds
+ throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`, { cause: { duration: duration } });
       }
       const data = await response.json();
+      const endTime = performance.now(); // End timing
+      const duration = endTime - startTime; // Duration in milliseconds
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         const textResponse = data.choices[0].message.content;
-        return { source: model, status: 'succeeded', response: textResponse };
+        return { source: model, status: 'succeeded', response: textResponse, duration: duration };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
-        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
+        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.', duration: duration };
       }
     } catch (error) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
         console.error(`OpenRouter API call for model ${model} timed out.`);
-        return { source: model, status: 'failed', error: 'Request timed out'};
+        return { source: model, status: 'failed', error: 'Request timed out', duration: performance.now() - (error.cause?.duration || 0) };
       }
-      console.error(`Error calling OpenRouter API for model ${model}: ${error.message}.`);
-      return { source: model, status: 'failed', error: error.message };
+      return { source: model, status: 'failed', error: error.message, duration: error.cause?.duration || 0 };
     }
   };
 
