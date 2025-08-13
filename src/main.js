@@ -185,37 +185,24 @@ export default async function ({ req, res }) {
     }
   };
 
-  // Log the start of the API calls
-  console.log(`Starting API calls for prompt: ${prompt.substring(0, 100)}...`);
-
   const apiCalls = [
     //callGemini(prompt),
     callPerplexity(prompt),
-    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+    //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+    //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
   ];
 
   const results = await Promise.all(apiCalls);
 
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
-  const sourceText = successfulResults.map((result, index) => {
-    return `#Source${index + 1}\n${JSON.stringify(result.response)}\n----------------------`;
-  }).join('\n');
-
-  const finalPrompt = `${prompt}.\nTo answer this query you have ${successfulResults.length} sources. \n${sourceText}\nGenerate a definitive & comprehensive summary on the basis of these sources.Please don't include any planning or reasoning text which you use. Simply provide the actual summarry and don't mention anything about the sources. The response should be in html format which can be rendered directly on a web page. Once the html is formed, please make sure to remove the text between <think> tags from the final html response.`;
-
-  const finalResult = await callOpenRouter(finalPrompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free');
-  //const finalResult = {"status":"succeeded"};
-
-  if (finalResult.status === 'succeeded' && finalResult.response) {
-    return res.json({ status: 200, json: finalResult.response }, 200, {
+  if (successfulResults) {
+    return res.json({ status: 200, json: successfulResults.response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
-    console.log(finalResult.error);
-    return res.json({ status: 200, json:  successfulResults[0].response || 'Unable to generate results' }, 200, {
+    return res.json({ status: 200, json:'Unable to generate results' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
