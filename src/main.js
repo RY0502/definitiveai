@@ -108,7 +108,7 @@ export default async function ({ req, res }) {
                   model: 'sonar',
                   messages: [{
                       role: 'user',
-                      content: 'date today',
+                      content: prompt,
                   }],
               }),
               signal: controller.signal
