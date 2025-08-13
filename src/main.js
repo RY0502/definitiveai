@@ -135,9 +135,11 @@ export default async function ({ req, res }) {
   }
 
   const callOpenRouter = async (prompt, model, isSummaryCall = false) => {
+ const controller = new AbortController();
+ const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
-      const apiKey = requestCount % 2 === 0 ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY;
+      const apiKey = requestCount % 2 === 0 ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY; // Assuming ANOTHER_OPENROUTER_API_KEY is defined elsewhere
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
