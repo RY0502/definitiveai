@@ -202,7 +202,7 @@ export default async function ({ req, res }) {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
-    return res.json({ status: 200, json:'Unable to generate results' }, 200, {
+    return res.json({ status: 200, json:'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
