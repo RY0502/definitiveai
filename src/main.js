@@ -198,7 +198,7 @@ export default async function ({ req, res }) {
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
   if (successfulResults) {
-    return res.json({ status: 200, json: successfulResults.response }, 200, {
+    return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }  else {
