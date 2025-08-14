@@ -152,7 +152,7 @@ export default async function ({ req, res }) {
             messages: [
               {
                 role: 'user',
-                content: isSummaryCall ? prompt : `${prompt}. Use web search to generate more accurate result`,
+                content: prompt,
               },
             ],
           }),
