@@ -230,11 +230,6 @@ export default async function ({ req, res }) {
       });
 
       clearTimeout(timeoutId);
-      if (!response.ok) {
-        console.log(response);
- throw new Error(`HTTP error! status: 500, body: error`);
-      }
-      console.log(response);
       const data = await response.json();
 
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
