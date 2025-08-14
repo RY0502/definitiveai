@@ -207,7 +207,7 @@ export default async function ({ req, res }) {
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
-      const chatCompletion = await groq.chat.completions.create({
+      const response = await groq.chat.completions.create({
         messages: [
           {
             role: 'user',
@@ -231,9 +231,14 @@ export default async function ({ req, res }) {
       });
 
       clearTimeout(timeoutId);
+      if (!response.ok) {
+        const errorBody = await response.text(); // Or response.json() if the error is JSON
+ throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+      }
+      const data = await response.json();
 
-      if (chatCompletion && chatCompletion.choices && chatCompletion.choices.length > 0 && chatCompletion.choices[0].message && chatCompletion.choices[0].message.content) {
-        let textResponse = chatCompletion.choices[0].message.content;
+      if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+        let textResponse = data.choices[0].message.content;
       textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
         return { source: 'Groq', status: 'succeeded', response: textResponse };
