@@ -237,8 +237,8 @@ export default async function ({ req, res }) {
         const htmlRegex = /<html>(.*?)<\/html>/s;
         textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
-      textResponse = textResponse.match(htmlRegex)[0];
-        return { source: 'Groq', status: 'succeeded', response: textResponse };
+      const finalResponse = textResponse.match(htmlRegex);
+        return { source: 'Groq', status: 'succeeded', response: finalResponse[0] };
       } else {
         return { source: 'Groq', status: 'failed', error: 'Failed to parse Groq response.' };
       }
