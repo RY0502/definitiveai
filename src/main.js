@@ -216,7 +216,6 @@ export default async function ({ req, res }) {
         ],
         model: 'openai/gpt-oss-20b', // Use an appropriate Groq model
         stream: false, // Set to false for non-streaming response
-        signal: controller.signal,
         temperature: 1,
   max_completion_tokens: 2048,
   top_p: 1,
