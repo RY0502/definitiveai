@@ -230,7 +230,7 @@ export default async function ({ req, res }) {
       });
 
       clearTimeout(timeoutId);
-      const data = await response.json();
+      const data =  response;
 
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
