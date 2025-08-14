@@ -12,6 +12,7 @@
   "author": "Google LLC",
   "license": "Apache-2.0",
   "dependencies": {
+    "groq-sdk": "^0.3.0",
     "node-appwrite": "^14.2.0",
     "node-fetch": "^2.6.7"
   },
