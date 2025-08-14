@@ -234,9 +234,11 @@ export default async function ({ req, res }) {
 
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
-      textResponse = textResponse.replace(/```html/g, '').trim();
+        const htmlRegex = /<html>(.*?)<\/html>/s;
+        textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
-      textResponse = textResponse.match('/<html>(.*?)<\/html>/s')
+      textResponse = textResponse.match(htmlRegex);
+      console.log(textResponse);
      // textResponse = '<html>'+ textResponse+ '</html>';
         return { source: 'Groq', status: 'succeeded', response: textResponse };
       } else {
