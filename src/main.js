@@ -232,8 +232,7 @@ export default async function ({ req, res }) {
       clearTimeout(timeoutId);
       if (!response.ok) {
         console.log(response);
-        const errorBody = await response.text(); // Or response.json() if the error is JSON
- throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+ throw new Error(`HTTP error! status: 500, body: error`);
       }
       console.log(response);
       const data = await response.json();
