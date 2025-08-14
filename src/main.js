@@ -174,6 +174,7 @@ export default async function ({ req, res }) {
       textResponse = textResponse.replace(/```/g, '').trim();
  return { source: model, status: 'succeeded', response: textResponse };
       } else {
+         console.log(response);
         console.error('Error parsing OpenRouter API response:', data);
  return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
       }
