@@ -233,7 +233,7 @@ export default async function ({ req, res }) {
       clearTimeout(timeoutId);
 
       if (chatCompletion && chatCompletion.choices && chatCompletion.choices.length > 0 && chatCompletion.choices[0].message && chatCompletion.choices[0].message.content) {
-        let textResponse = data.choices[0].message.content;
+        let textResponse = chatCompletion.choices[0].message.content;
       textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
         return { source: 'Groq', status: 'succeeded', response: textResponse };
