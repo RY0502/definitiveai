@@ -219,7 +219,7 @@ export default async function ({ req, res }) {
         temperature: 1,
   max_completion_tokens: 2048,
   top_p: 1,
-  reasoning_effort: "medium",
+  reasoning_effort: "low",
   stop: null,
   tool_choice: "required",
   tools: [
@@ -231,12 +231,13 @@ export default async function ({ req, res }) {
 
       clearTimeout(timeoutId);
       const data =  response;
-      console.log(data);
 
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
       textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
+      textResponse = textResponse.match('/<html>(.*?)<\/html>/s')
+     // textResponse = '<html>'+ textResponse+ '</html>';
         return { source: 'Groq', status: 'succeeded', response: textResponse };
       } else {
         return { source: 'Groq', status: 'failed', error: 'Failed to parse Groq response.' };
