@@ -247,6 +247,7 @@ export default async function ({ req, res }) {
         return { source: 'Groq', status: 'failed', error: 'Failed to parse Groq response.' };
       }
     } catch (error) {
+      console.log(error);
       clearTimeout(timeoutId);
       return { source: 'Groq', status: 'failed', error: error.message };
     }
