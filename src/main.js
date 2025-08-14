@@ -254,10 +254,11 @@ export default async function ({ req, res }) {
     'fresh', 'newest', 'up to', 'upto', 'real time', 'realtime'];
 
     let finalPrompt = prompt.toLowerCase();
-    if(finalPrompt.includes('Query-')){
-      const queryRegex = /Query-([^.]*)\./;
+    if(finalPrompt.includes('query-')){
+      const queryRegex = /query-([^.]*)\./;
       const match = finalPrompt.match(queryRegex);
       finalPrompt = match[1];
+      console.log(finalPrompt);
     }
 
     let apiCalls;
