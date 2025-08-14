@@ -258,7 +258,7 @@ export default async function ({ req, res }) {
       const queryRegex = /query-([^.]*)\./;
       const match = finalPrompt.match(queryRegex);
       finalPrompt = match[1];
-      console.log(finalPrompt);
+      //console.log(finalPrompt);
     }
 
     let apiCalls;
