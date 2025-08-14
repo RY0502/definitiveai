@@ -249,14 +249,39 @@ export default async function ({ req, res }) {
     }
   };
 
-  const apiCalls = [
-    //callGemini(prompt),
-   // callPerplexity(prompt),
-   // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
-    callGroq(prompt),
-    //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
-  ];
+  const words = ['current', 'currently', 'latest', 'now', 'today', 'at the moment', 'trends', 'trending',
+    'recent', 'recently', 'trend', 'live', 'present', 'presently', 'happening', 'ongoing', 'new', 
+    'fresh', 'newest', 'up to', 'upto', 'real time', 'realtime'];
+
+    let finalPrompt = prompt.toLowerCase();
+    if(finalPrompt.includes('Query-')){
+      const queryRegex = /Query-([^.]*)\./;
+      const match = finalPrompt.match(queryRegex);
+      finalPrompt = match[1];
+    }
+
+    let apiCalls;
+    if(words.some(word => finalPrompt.includes(word))){
+      console.log("Search call invoked....");
+      apiCalls = [
+        //callGemini(prompt),
+       // callPerplexity(prompt),
+       // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+        callGroq(prompt),
+        //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
+        //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+      ];
+    } else {
+      console.log("Normal call invoked....");
+      apiCalls = [
+        //callGemini(prompt),
+       // callPerplexity(prompt),
+        callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+       // callGroq(prompt),
+        //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
+        //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+      ];
+    }
 
   const results = await Promise.all(apiCalls);
 
