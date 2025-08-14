@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
-
+import Groq from 'groq-sdk';
+ 
 const API_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
 let requestCount = 0;
 
@@ -9,6 +10,7 @@ export default async function ({ req, res }) {
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
   const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI'; // Replace with your site URL
   const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI'; // Replace with your site name
   const ANOTHER_OPENROUTER_API_KEY = process.env.ANOTHER_OPENROUTER_API_KEY;
   
@@ -44,6 +46,11 @@ export default async function ({ req, res }) {
   if (!OPENROUTER_API_KEY) {
     console.error('OPENROUTER_API_KEY is not set.');
  return res.json({ status: 500, json: { error: 'OPENROUTER_API_KEY is not set.' } });
+  }
+
+  if (!GROQ_API_KEY) {
+    console.error('GROQ_API_KEY is not set.');
+    // Continue without Groq if key is missing, or return error depending on requirements
   }
 
   const callGemini = async (prompt) => {
@@ -187,10 +194,63 @@ export default async function ({ req, res }) {
     }
   };
 
+  const callGroq = async (prompt) => {
+    if (!GROQ_API_KEY) {
+      return { source: 'Groq', status: 'failed', error: 'GROQ_API_KEY is not set.' };
+    }
+
+    const groq = new Groq({
+      apiKey: GROQ_API_KEY,
+    });
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    try {
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        model: 'openai/gpt-oss-20b', // Use an appropriate Groq model
+        stream: false, // Set to false for non-streaming response
+        signal: controller.signal,
+        temperature: 1,
+  max_completion_tokens: 2048,
+  top_p: 1,
+  reasoning_effort: "medium",
+  stop: null,
+  tool_choice: "required",
+  tools: [
+    {
+      type: "browser_search"
+    }
+  ]
+      });
+
+      clearTimeout(timeoutId);
+
+      if (chatCompletion && chatCompletion.choices && chatCompletion.choices.length > 0 && chatCompletion.choices[0].message && chatCompletion.choices[0].message.content) {
+        let textResponse = data.choices[0].message.content;
+      textResponse = textResponse.replace(/```html/g, '').trim();
+      textResponse = textResponse.replace(/```/g, '').trim();
+        return { source: 'Groq', status: 'succeeded', response: textResponse };
+      } else {
+        return { source: 'Groq', status: 'failed', error: 'Failed to parse Groq response.' };
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      return { source: 'Groq', status: 'failed', error: error.message };
+    }
+  };
+
   const apiCalls = [
     //callGemini(prompt),
    // callPerplexity(prompt),
-    callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+   // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+    callGroq(prompt),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
     //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
   ];
