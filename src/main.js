@@ -211,7 +211,7 @@ export default async function ({ req, res }) {
         messages: [
           {
             role: 'user',
-            content: prompt,
+            content: prompt+'Include only <html> part in final response. No search metdata',
           },
         ],
         model: 'openai/gpt-oss-20b', // Use an appropriate Groq model
