@@ -124,8 +124,8 @@ export default async function ({ req, res }) {
             textResponse = textResponse.replace(/```/g, '').trim();
           const finalResponse = textResponse.match(htmlRegex);
           let resp;
-      //console.log(textResponse);
-      //console.log(finalResponse);
+      console.log(textResponse);
+      console.log(finalResponse);
       if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
           resp = finalResponse[0];
       } else {
