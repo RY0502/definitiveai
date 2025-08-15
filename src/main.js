@@ -121,6 +121,7 @@ export default async function ({ req, res }) {
             let textResponse = data.choices[0].message.content;
       textResponse = textResponse.replace(/```html/g, '').trim();
       textResponse = textResponse.replace(/```/g, '').trim();
+      console.log(textResponse);
  return { source: 'Perplexity', status: 'succeeded', response: textResponse };
           } else {
               console.error('Error parsing Perplexity API response:', data);
