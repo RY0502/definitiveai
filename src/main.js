@@ -270,7 +270,8 @@ export default async function ({ req, res }) {
 
   const words = ['current', 'currently', 'latest', 'now', 'today', 'at the moment', 'trends', 'trending',
     'recent', 'recently', 'trend', 'live', 'present', 'presently', 'happening', 'ongoing', 'new', 
-    'fresh', 'newest', 'up to', 'upto', 'real time', 'realtime'];
+    'fresh', 'newest', 'up to', 'upto', 'real time', 'realtime', 'this',  'upcoming', 'future'
+    'imminent', 'coming', 'likely', 'going to', 'date'];
 
     let finalPrompt = prompt.toLowerCase();
     if(finalPrompt.includes('query-')){
