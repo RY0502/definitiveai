@@ -119,10 +119,12 @@ export default async function ({ req, res }) {
 
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
             let textResponse = data.choices[0].message.content;
-      textResponse = textResponse.replace(/```html/g, '').trim();
-      textResponse = textResponse.replace(/```/g, '').trim();
-      console.log(textResponse);
- return { source: 'Perplexity', status: 'succeeded', response: textResponse };
+            const htmlRegex = /<html>(.*?)<\/html>/s;
+            textResponse = textResponse.replace(/```html/g, '').trim();
+            textResponse = textResponse.replace(/```/g, '').trim();
+          const finalResponse = textResponse.match(htmlRegex);
+      //console.log(textResponse);
+ return { source: 'Perplexity', status: 'succeeded', response: finalResponse[0] };
           } else {
               console.error('Error parsing Perplexity API response:', data);
               return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: duration };
