@@ -123,7 +123,8 @@ export default async function ({ req, res }) {
             textResponse = textResponse.replace(/```html/g, '').trim();
             textResponse = textResponse.replace(/```/g, '').trim();
           const finalResponse = textResponse.match(htmlRegex);
-      //console.log(textResponse);
+      console.log(textResponse);
+      console.log(finalResponse);
  return { source: 'Perplexity', status: 'succeeded', response: finalResponse[0] };
           } else {
               console.error('Error parsing Perplexity API response:', data);
