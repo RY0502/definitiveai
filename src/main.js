@@ -78,9 +78,12 @@ export default async function ({ req, res }) {
       // Extract text from the first part of the first candidate
       try {
         let textResponse = data.candidates[0].content.parts[0].text;
-      textResponse = textResponse.replace(/```html/g, '').trim();
-      textResponse = textResponse.replace(/```/g, '').trim();
-        return { source: 'Gemini', status: 'succeeded', response: textResponse };
+        const htmlRegex = /<html>(.*?)<\/html>/s;
+        textResponse = textResponse.replace(/```html/g, '').trim();
+        textResponse = textResponse.replace(/```/g, '').trim();
+      const finalResponse = textResponse.match(htmlRegex);
+  //console.log(textResponse);
+        return { source: 'Gemini', status: 'succeeded', response: finalResponse[0] };
       } catch (parseError) {
         console.error('Error parsing Gemini API response:', parseError.message);
         return { source: 'Gemini', status: 'failed', error: 'Failed to parse Gemini response.' };
