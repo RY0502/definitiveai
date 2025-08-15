@@ -79,11 +79,18 @@ export default async function ({ req, res }) {
       try {
         let textResponse = data.candidates[0].content.parts[0].text;
         const htmlRegex = /<html>(.*?)<\/html>/s;
-        textResponse = textResponse.replace(/```html/g, '').trim();
-        textResponse = textResponse.replace(/```/g, '').trim();
-      const finalResponse = textResponse.match(htmlRegex);
-  //console.log(textResponse);
-        return { source: 'Gemini', status: 'succeeded', response: finalResponse[0] };
+            textResponse = textResponse.replace(/```html/g, '').trim();
+            textResponse = textResponse.replace(/```/g, '').trim();
+          const finalResponse = textResponse.match(htmlRegex);
+          let resp;
+      //console.log(textResponse);
+      //console.log(finalResponse);
+      if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
+          resp = finalResponse[0];
+      } else {
+        resp = textResponse;
+      }
+        return { source: 'Gemini', status: 'succeeded', response: resp };
       } catch (parseError) {
         console.error('Error parsing Gemini API response:', parseError.message);
         return { source: 'Gemini', status: 'failed', error: 'Failed to parse Gemini response.' };
