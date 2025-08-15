@@ -77,7 +77,9 @@ export default async function ({ req, res }) {
       const data = await response.json();
       // Extract text from the first part of the first candidate
       try {
-        const textResponse = data.candidates[0].content.parts[0].text;
+        let textResponse = data.candidates[0].content.parts[0].text;
+      textResponse = textResponse.replace(/```html/g, '').trim();
+      textResponse = textResponse.replace(/```/g, '').trim();
         return { source: 'Gemini', status: 'succeeded', response: textResponse };
       } catch (parseError) {
         console.error('Error parsing Gemini API response:', parseError.message);
@@ -188,8 +190,8 @@ export default async function ({ req, res }) {
   };
 
   const apiCalls = [
-    //callGemini(prompt),
-    callPerplexity(prompt),
+    callGemini(prompt),
+    //callPerplexity(prompt),
     //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
     //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
