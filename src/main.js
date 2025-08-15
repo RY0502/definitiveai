@@ -177,9 +177,19 @@ export default async function ({ req, res }) {
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
-      textResponse = textResponse.replace(/```html/g, '').trim();
-      textResponse = textResponse.replace(/```/g, '').trim();
- return { source: model, status: 'succeeded', response: textResponse };
+        const htmlRegex = /<html>(.*?)<\/html>/s;
+        textResponse = textResponse.replace(/```html/g, '').trim();
+        textResponse = textResponse.replace(/```/g, '').trim();
+      const finalResponse = textResponse.match(htmlRegex);
+      let resp;
+  //console.log(textResponse);
+  //console.log(finalResponse);
+  if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
+      resp = finalResponse[0];
+  } else {
+    resp = textResponse;
+  }
+ return { source: model, status: 'succeeded', response: resp };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
  return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
@@ -236,9 +246,17 @@ export default async function ({ req, res }) {
         let textResponse = data.choices[0].message.content;
         const htmlRegex = /<html>(.*?)<\/html>/s;
         textResponse = textResponse.replace(/```html/g, '').trim();
-      textResponse = textResponse.replace(/```/g, '').trim();
+        textResponse = textResponse.replace(/```/g, '').trim();
       const finalResponse = textResponse.match(htmlRegex);
-        return { source: 'Groq', status: 'succeeded', response: finalResponse[0] };
+      let resp;
+  //console.log(textResponse);
+  //console.log(finalResponse);
+  if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
+      resp = finalResponse[0];
+  } else {
+    resp = textResponse;
+  }
+        return { source: 'Groq', status: 'succeeded', response: resp };
       } else {
         return { source: 'Groq', status: 'failed', error: 'Failed to parse Groq response.' };
       }
