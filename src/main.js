@@ -174,6 +174,7 @@ export default async function ({ req, res }) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
  throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
+      console.log(response);
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
