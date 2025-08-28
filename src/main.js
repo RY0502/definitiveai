@@ -300,8 +300,8 @@ export default async function ({ req, res }) {
        //callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
        //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
        // callGroq(prompt),
-       // callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
-        callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+        callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
+       // callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
       ];
     }
 
