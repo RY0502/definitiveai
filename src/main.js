@@ -283,25 +283,25 @@ export default async function ({ req, res }) {
 
     let apiCalls;
     if(words.some(word => finalPrompt.includes(word))){
-      console.log("Search call invoked....");
+     // console.log("Search call invoked....");
       apiCalls = [
         //callGemini(prompt),
        // callPerplexity(prompt),
-       // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
-        callGroq(prompt),
+        callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+       // callGroq(prompt),
         //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-        //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+        //callOpenRouter(prompt, 'meta-llama/llama-3.3-8b-instruct:free'),
       ];
     } else {
-      console.log("Normal call invoked....");
+      //console.log("Normal call invoked....");
       apiCalls = [
         //callGemini(prompt),
        // callPerplexity(prompt),
        //callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
        //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
        // callGroq(prompt),
-        callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
-        //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+       // callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
+        callOpenRouter(prompt, 'meta-llama/llama-3.3-8b-instruct:free'),
       ];
     }
 
