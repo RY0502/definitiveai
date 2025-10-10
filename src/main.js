@@ -139,8 +139,9 @@ export default async function ({ req, res }) {
   }
 
   const callOpenRouter = async (prompt, model, isSummaryCall = false) => {
- const controller = new AbortController();
- const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+    const startTime = Date.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
       const apiKey = requestCount % 2 === 0 ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY; // Assuming ANOTHER_OPENROUTER_API_KEY is defined elsewhere
@@ -150,7 +151,7 @@ export default async function ({ req, res }) {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${apiKey}`,
-            'HTTP-Referer': YOUR_SITE_URL ,
+            'HTTP-Referer': YOUR_SITE_URL,
             'X-Title': YOUR_SITE_NAME,
             'Content-Type': 'application/json',
           },
@@ -164,44 +165,52 @@ export default async function ({ req, res }) {
             ],
           }),
           signal: controller.signal,
- },
+        },
       );
 
-
+      const endTime = Date.now();
+      const duration = (endTime - startTime) / 1000;
       clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorBody = await response.text(); // Or response.json() if the error is JSON
- throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
-      //console.log(response);
+
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
+        const modelName = model.includes('llama') ? 'Llama' : 'GPT';
+        const timeString = `<p style="text-align:center;">${modelName} pretrained took - ${duration.toFixed(2)} s</p>`;
+
         const htmlRegex = /<html>(.*?)<\/html>/s;
         textResponse = textResponse.replace(/```html/g, '').trim();
         textResponse = textResponse.replace(/```/g, '').trim();
-      const finalResponse = textResponse.match(htmlRegex);
-      let resp;
-  //console.log(textResponse);
-  //console.log(finalResponse);
-  if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
-      resp = finalResponse[0];
-  } else {
-    resp = textResponse;
-  }
- return { source: model, status: 'succeeded', response: resp };
+        const finalResponse = textResponse.match(htmlRegex);
+        let resp;
+
+        if (finalResponse != undefined && finalResponse != null && finalResponse.length > 0) {
+          resp = finalResponse[0];
+          if (resp.includes('</body>')) {
+            resp = resp.replace('</body>', `${timeString}</body>`);
+          } else {
+            resp += timeString;
+          }
+        } else {
+          resp = textResponse + timeString;
+        }
+        return { source: model, status: 'succeeded', response: resp };
       } else {
         console.error('Error parsing OpenRouter API response:', data);
- return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
+        return { source: model, status: 'failed', error: 'Failed to parse OpenRouter response or response not OK.' };
       }
     } catch (error) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
         console.error(`OpenRouter API call for model ${model} timed out.`);
-        return { source: model, status: 'failed', error: 'Request timed out', duration: performance.now() - (error.cause?.duration || 0) };
+        return { source: model, status: 'failed', error: 'Request timed out' };
       }
- return { source: model, status: 'failed', error: error.message };
+      return { source: model, status: 'failed', error: error.message };
     }
   };
 
@@ -319,9 +328,3 @@ export default async function ({ req, res }) {
     });
   }
 }
-
-
-
-
-
-
