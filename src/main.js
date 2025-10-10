@@ -50,6 +50,7 @@ export default async function ({ req, res }) {
     if (!GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is not set.');
     }
+    const startTime = Date.now();
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -69,6 +70,8 @@ export default async function ({ req, res }) {
           signal: controller.signal,
         },
       );
+      const endTime = Date.now();
+      const duration = (endTime - startTime) / 1000;
 
       clearTimeout(timeoutId);
       if (!response.ok) {
@@ -78,18 +81,24 @@ export default async function ({ req, res }) {
       // Extract text from the first part of the first candidate
       try {
         let textResponse = data.candidates[0].content.parts[0].text;
+        const timeString = `<p style=\"text-align:center;\">Gemini with search took - ${duration.toFixed(2)} s</p>`;
         const htmlRegex = /<html>(.*?)<\/html>/s;
-            textResponse = textResponse.replace(/```html/g, '').trim();
-            textResponse = textResponse.replace(/```/g, '').trim();
-          const finalResponse = textResponse.match(htmlRegex);
-          let resp;
-      //console.log(textResponse);
-      //console.log(finalResponse);
-      if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
+        textResponse = textResponse.replace(/```html/g, '').trim();
+        textResponse = textResponse.replace(/```/g, '').trim();
+        const finalResponse = textResponse.match(htmlRegex);
+        let resp;
+
+        if (finalResponse != undefined && finalResponse != null && finalResponse.length > 0) {
           resp = finalResponse[0];
-      } else {
-        resp = textResponse;
-      }
+          if (resp.includes('</body>')) {
+            resp = resp.replace('</body>', `${timeString}</body>`);
+          } else {
+            resp += timeString;
+          }
+        } else {
+          resp = textResponse + timeString;
+        }
+
         return { source: 'Gemini', status: 'succeeded', response: resp };
       } catch (parseError) {
         console.error('Error parsing Gemini API response:', parseError.message);
@@ -97,7 +106,8 @@ export default async function ({ req, res }) {
       }
     } catch (error) {
       console.error('Error calling Gemini API:', error.message);
-      return { source: 'Gemini', status: 'failed', error: error.message };    }
+      return { source: 'Gemini', status: 'failed', error: error.message };
+    }
   };
 
   const callPerplexity = async (prompt) => {
@@ -204,7 +214,7 @@ export default async function ({ req, res }) {
     //callPerplexity(prompt),
     //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+    //callOpenRouter(prompt, 'meta-llama/llama-3.1-8b-instruct:free'),
   ];
 
   const results = await Promise.all(apiCalls);
@@ -221,7 +231,6 @@ export default async function ({ req, res }) {
     });
   }
 }
-
 
 
 
