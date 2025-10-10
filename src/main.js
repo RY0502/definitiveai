@@ -93,6 +93,7 @@ export default async function ({ req, res }) {
           throw new Error('PERPLEXITY_API_KEY is not set.');
  return { source: 'Perplexity', status: 'failed', error: 'PERPLEXITY_API_KEY is not set.' };
       }
+      const startTime = Date.now();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
@@ -113,28 +114,35 @@ export default async function ({ req, res }) {
               signal: controller.signal
 
           });
+          const endTime = Date.now();
+          const duration = (endTime - startTime) / 1000;
 
           clearTimeout(timeoutId);
           const data = await response.json();
 
           if (response.ok && data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
             let textResponse = data.choices[0].message.content;
+            const timeString = `<p style=\"text-align:center;\">Perplexity search took - ${duration.toFixed(2)} s</p>`;
             const htmlRegex = /<html>(.*?)<\/html>/s;
             textResponse = textResponse.replace(/```html/g, '').trim();
             textResponse = textResponse.replace(/```/g, '').trim();
-          const finalResponse = textResponse.match(htmlRegex);
-          let resp;
-      //console.log(textResponse);
-      //console.log(finalResponse);
-      if(finalResponse!=undefined && finalResponse!=null &&finalResponse.length>0){
-          resp = finalResponse[0];
-      } else {
-        resp = textResponse;
-      }
- return { source: 'Perplexity', status: 'succeeded', response: resp };
+            const finalResponse = textResponse.match(htmlRegex);
+            let resp;
+
+            if (finalResponse != undefined && finalResponse != null && finalResponse.length > 0) {
+              resp = finalResponse[0];
+              if (resp.includes('</body>')) {
+                resp = resp.replace('</body>', `<br/>${timeString}</body>`);
+              } else {
+                resp += timeString;
+              }
+            } else {
+              resp = textResponse + timeString;
+            }
+            return { source: 'Perplexity', status: 'succeeded', response: resp };
           } else {
               console.error('Error parsing Perplexity API response:', data);
-              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.', duration: duration };
+              return { source: 'Perplexity', status: 'failed', error: 'Failed to parse Perplexity response or response not OK.' };
           }
 
       } catch (error) {
@@ -202,7 +210,7 @@ export default async function ({ req, res }) {
     callPerplexity(prompt),
     //callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
     //callOpenRouter(prompt, 'moonshotai/kimi-k2:free'),
-    //callOpenRouter(prompt, 'meta-llama/llama-3.2-3b-instruct:free'),
+    //callOpenRouter(prompt, 'meta-llama/llama-3.1-8b-instruct:free'),
   ];
 
   const results = await Promise.all(apiCalls);
@@ -219,7 +227,6 @@ export default async function ({ req, res }) {
     });
   }
 }
-
 
 
 
