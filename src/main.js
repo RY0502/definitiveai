@@ -192,7 +192,7 @@ export default async function ({ req, res }) {
         if (finalResponse != undefined && finalResponse != null && finalResponse.length > 0) {
           resp = finalResponse[0];
           if (resp.includes('</body>')) {
-            resp = resp.replace('</body>', `<br/><i>${timeString}</i></body>`);
+            resp = resp.replace('</body>', `<br/><b><i>${timeString}</i></b></body>`);
           } else {
             resp += timeString;
           }
