@@ -4,7 +4,7 @@ const API_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
 let requestCount = 0;
 
 export default async function ({ req, res }) {
-
+  const functionstartTime = Date.now();
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
   const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI'; // Replace with your site URL
@@ -222,6 +222,8 @@ export default async function ({ req, res }) {
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
   if (successfulResults != undefined && successfulResults.length > 0) {
+    const functionendTime = Date.now();
+     console.log((functionendTime - functionstartTime) / 1000);
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
