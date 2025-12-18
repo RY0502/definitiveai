@@ -79,7 +79,8 @@ export default async function ({ req, res }) {
       const data = await response.json();
       if (data && data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
         let textResponse = data.choices[0].message.content;
-        const modelName = model.includes('llama') ? 'Llama' : 'GPT';
+        const modelMatch = model.match(/\/([^:]+):/);
+        const modelName = modelMatch && modelMatch[1] ? modelMatch[1] : model;
         const timeString = `<p style="text-align:center;">${modelName} pretrained took - ${duration.toFixed(2)} s</p>`;
 
         const htmlRegex = /<html>(.*?)<\/html>/s;
