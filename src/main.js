@@ -116,7 +116,7 @@ export default async function ({ req, res }) {
     const apiCalls = [
       // callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
       // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
-      callOpenRouter(prompt, 'allenai/olmo-3.1-32b-think:free'),
+      callOpenRouter(prompt, 'arcee-ai/trinity-mini:free'),
       // callOpenRouter(prompt, 'meta-llama/llama-3.3-8b-instruct:free'),
       // callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
     ];
