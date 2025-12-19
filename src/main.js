@@ -2,19 +2,55 @@ import fetch from 'node-fetch';
 
 const API_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
 
+// Function to fetch Gemini API key from URL
+async function fetchGeminiApiKey() {
+  const GEMINI_KEY_URL = process.env.GEMINI_KEY_URL;
+
+  if (!GEMINI_KEY_URL) {
+    throw new Error('GEMINI_KEY_URL is not set in environment variables.');
+  }
+
+  try {
+    const response = await fetch(GEMINI_KEY_URL);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch API key: HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Extract the decrypted value from the response
+    if (!data.keys || !data.keys[0] || !data.keys[0].vault_keys || !data.keys[0].vault_keys.decrypted_value) {
+      throw new Error('Invalid response format: decrypted_value not found');
+    }
+
+    return data.keys[0].vault_keys.decrypted_value;
+  } catch (error) {
+    console.error('Error fetching Gemini API key:', error.message);
+    throw error;
+  }
+}
+
 export default async function ({ req, res }) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  // Fetch the Gemini API key from URL
+  let GEMINI_API_KEY;
+  try {
+    GEMINI_API_KEY = await fetchGeminiApiKey();
+  } catch (error) {
+    console.error('Failed to retrieve GEMINI_API_KEY:', error.message);
+    return res.json({ status: 500, json: { error: 'Failed to retrieve GEMINI_API_KEY.' } });
+  }
   if (req.method === 'GET') {
-    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
+    return res.text('Only POST requests are supported.', 200, { 'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
   }
 
   if (req.method === 'OPTIONS') {
     return res.send('', 200, {
-        'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
-        'Access-Control-Allow-Headers': '*', // Or include all headers your requests send
+      'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
+      'Access-Control-Allow-Headers': '*', // Or include all headers your requests send
     });
-}
+  }
 
 
   const prompt = req.body; // Appwrite passes the body directly
@@ -48,10 +84,10 @@ export default async function ({ req, res }) {
             contents: [{ parts: [{ text: prompt }] }],
             tools: [{ google_search: {} }],
             generationConfig: {
-                thinkingConfig: {
+              thinkingConfig: {
                 thinkingBudget: 0
+              }
             }
-        }
           }),
           signal: controller.signal,
         },
@@ -96,7 +132,7 @@ export default async function ({ req, res }) {
     }
   };
 
-  
+
 
   const apiCalls = [
     callGemini(prompt),
@@ -110,8 +146,8 @@ export default async function ({ req, res }) {
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
-  }  else {
-    return res.json({ status: 200, json:'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
+  } else {
+    return res.json({ status: 200, json: 'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
