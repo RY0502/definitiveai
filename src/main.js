@@ -54,7 +54,7 @@ export default async function ({ req, res }) {
 
 
   const prompt = req.body; // Appwrite passes the body directly
-
+console.log(req);
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required in the request body.' });
   }
