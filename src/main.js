@@ -9,19 +9,19 @@ export default async function ({ req, res }) {
   const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI';
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI';
   const ANOTHER_OPENROUTER_API_KEY = process.env.ANOTHER_OPENROUTER_API_KEY;
-  
+
   requestCount++;
   if (req.method === 'GET') {
-    return res.text('Only POST requests are supported.', 200, {'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
+    return res.text('Only POST requests are supported.', 200, { 'content-type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
   }
 
   if (req.method === 'OPTIONS') {
     return res.send('', 200, {
-        'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
-        'Access-Control-Allow-Headers': '*', // Or include all headers your requests send
+      'Access-Control-Allow-Origin': '*', // Or '*' for all origins (use with caution)
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', // Or include all methods your function uses
+      'Access-Control-Allow-Headers': '*', // Or include all headers your requests send
     });
-}
+  }
 
 
   const prompt = req.bodyText; // Appwrite passes the body directly
@@ -111,16 +111,16 @@ export default async function ({ req, res }) {
         return { source: model, status: 'failed', error: 'Request timed out' };
       }
       return { source: model, status: 'failed', error: error.message };
-  }
-};
+    }
+  };
 
-    const apiCalls = [
-      // callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
-      // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
-      callOpenRouter(prompt, 'arcee-ai/trinity-mini:free'),
-      // callOpenRouter(prompt, 'meta-llama/llama-3.3-8b-instruct:free'),
-      // callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
-    ];
+  const apiCalls = [
+    // callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
+    // callOpenRouter(prompt, 'openai/gpt-oss-20b:free'),
+    callOpenRouter(prompt, 'qwen/qwen-2.5-vl-7b-instruct:free'),
+    // callOpenRouter(prompt, 'meta-llama/llama-3.3-8b-instruct:free'),
+    // callOpenRouter(prompt, 'nousresearch/deephermes-3-llama-3-8b-preview:free'),
+  ];
 
   const results = await Promise.all(apiCalls);
 
@@ -130,8 +130,8 @@ export default async function ({ req, res }) {
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
-  }  else {
-    return res.json({ status: 200, json:'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
+  } else {
+    return res.json({ status: 200, json: 'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
