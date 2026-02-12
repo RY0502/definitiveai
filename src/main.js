@@ -30,7 +30,7 @@ export default async function ({ req, res }) {
     return res.status(400).json({ error: 'Prompt is required in the request body.' });
   }
 
-  if (!OPENROUTER_API_KEY) {
+  if (!OPENROUTER_API_KEY) { 
     console.error('OPENROUTER_API_KEY is not set.');
     return res.json({ status: 500, json: { error: 'OPENROUTER_API_KEY is not set.' } });
   }
@@ -114,27 +114,30 @@ export default async function ({ req, res }) {
     }
   };
 
-  const apiCalls = [
-     callOpenRouter(prompt, 'nvidia/nemotron-3-nano-30b-a3b:free'),
-     callOpenRouter(prompt, 'google/gemma-3n-e4b-it:free'),
-     callOpenRouter(prompt, 'liquid/lfm-2.5-1.2b-thinking:free'),
-     // callOpenRouter(prompt, 'openai/gpt-oss-120b:free'),
-    //callOpenRouter(prompt, 'meta-llama/llama-3.3-70b-instruct:free'),
+  const firstBatch = [
+    callOpenRouter(prompt, 'nvidia/nemotron-3-nano-30b-a3b:free'),
   ];
-
-  const results = await Promise.all(apiCalls);
-
-  const successfulResults = results.filter(result => result.status === 'succeeded');
-
+  let results = await Promise.all(firstBatch);
+  let successfulResults = results.filter(result => result.status === 'succeeded');
   if (successfulResults != undefined && successfulResults.length > 0) {
-    console.log('successfulResults:', successfulResults);
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
-  } else {
-    console.log('No successful results', { successfulResults, results });
-    return res.json({ status: 200, json: 'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
+  }
+
+  const secondBatch = [
+    callOpenRouter(prompt, 'google/gemma-3n-e4b-it:free'),
+  ];
+  results = await Promise.all(secondBatch);
+  successfulResults = results.filter(result => result.status === 'succeeded');
+  if (successfulResults != undefined && successfulResults.length > 0) {
+    return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   }
+
+  console.log('No successful results', { successfulResults, results });
+  return res.json({ status: 200, json: 'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
+    'Access-Control-Allow-Origin': '*',
+  });
 }
