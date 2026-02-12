@@ -41,9 +41,9 @@ export default async function ({ req, res }) {
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     try {
-      const apiKey = (requestCount % 2 === 0 || !ANOTHER_OPENROUTER_API_KEY)
-        ? OPENROUTER_API_KEY
-        : ANOTHER_OPENROUTER_API_KEY;
+      const lowerPrompt = (prompt || '').toLowerCase();
+      const useAltKey = lowerPrompt.includes('semantically duplicates') && !!ANOTHER_OPENROUTER_API_KEY;
+      const apiKey = useAltKey ? ANOTHER_OPENROUTER_API_KEY : OPENROUTER_API_KEY;
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
