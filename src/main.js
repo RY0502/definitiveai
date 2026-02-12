@@ -9,6 +9,9 @@ export default async function ({ req, res }) {
   const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'Definitive AI';
   const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'Definitive AI';
   const ANOTHER_OPENROUTER_API_KEY = process.env.ANOTHER_OPENROUTER_API_KEY;
+  const REST_OPENROUTER_API_KEY = process.env.REST_OPENROUTER_API_KEY;
+  const REST_ANOTHER_OPENROUTER_API_KEY = process.env.REST_ANOTHER_OPENROUTER_API_KEY;
+
 
   requestCount++;
   if (req.method === 'GET') {
@@ -30,9 +33,9 @@ export default async function ({ req, res }) {
     return res.status(400).json({ error: 'Prompt is required in the request body.' });
   }
 
-  if (!OPENROUTER_API_KEY) { 
-    console.error('OPENROUTER_API_KEY is not set.');
-    return res.json({ status: 500, json: { error: 'OPENROUTER_API_KEY is not set.' } });
+  if (!OPENROUTER_API_KEY && !ANOTHER_OPENROUTER_API_KEY && !REST_OPENROUTER_API_KEY && !REST_ANOTHER_OPENROUTER_API_KEY) {
+    console.error('No API keys are set.');
+    return res.json({ status: 500, json: { error: 'No API keys are set.' } });
   }
 
   const callOpenRouter = async (prompt, model) => {
@@ -42,8 +45,14 @@ export default async function ({ req, res }) {
 
     try {
       const lowerPrompt = (prompt || '').toLowerCase();
-      const useAltKey = lowerPrompt.includes('semantically duplicates') && !!ANOTHER_OPENROUTER_API_KEY;
-      const apiKey = useAltKey ? ANOTHER_OPENROUTER_API_KEY : OPENROUTER_API_KEY;
+      const hour = new Date().getHours();
+      const evenHour = hour % 2 === 0;
+      let apiKey;
+      if (lowerPrompt.includes('semantically duplicates')) {
+        apiKey = evenHour ? REST_OPENROUTER_API_KEY : REST_ANOTHER_OPENROUTER_API_KEY;
+      } else {
+        apiKey = evenHour ? OPENROUTER_API_KEY : ANOTHER_OPENROUTER_API_KEY;
+      }
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
