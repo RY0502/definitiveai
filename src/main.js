@@ -115,11 +115,11 @@ export default async function ({ req, res }) {
   };
 
   const apiCalls = [
-    // callOpenRouter(prompt, 'mistralai/mistral-7b-instruct:free'),
-    //callOpenRouter(prompt, 'qwen/qwen-2.5-vl-7b-instruct:free'),
      callOpenRouter(prompt, 'nvidia/nemotron-3-nano-30b-a3b:free'),
-      callOpenRouter(prompt, 'openai/gpt-oss-120b:free'),
-    callOpenRouter(prompt, 'meta-llama/llama-3.3-70b-instruct:free'),
+     callOpenRouter(prompt, 'google/gemma-3n-e4b-it:free'),
+     callOpenRouter(prompt, 'liquid/lfm-2.5-1.2b-thinking:free'),
+     // callOpenRouter(prompt, 'openai/gpt-oss-120b:free'),
+    //callOpenRouter(prompt, 'meta-llama/llama-3.3-70b-instruct:free'),
   ];
 
   const results = await Promise.all(apiCalls);
