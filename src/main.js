@@ -127,10 +127,12 @@ export default async function ({ req, res }) {
   const successfulResults = results.filter(result => result.status === 'succeeded');
 
   if (successfulResults != undefined && successfulResults.length > 0) {
+    console.log('successfulResults:', successfulResults);
     return res.json({ status: 200, json: successfulResults[0].response }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
   } else {
+    console.log('No successful results', { successfulResults, results });
     return res.json({ status: 200, json: 'Unable to generate answer from this source. Results will be available from other sources shortly' }, 200, {
       'Access-Control-Allow-Origin': '*',
     });
